@@ -44,10 +44,12 @@ var main = new Vue ({
 		toggleOption : function (option) {
 			option.active = !option.active ;
 		}, 
-		selectOption : function (option) {
-			this.selectedOption = option.option ; 
+		selectOption : function (option, subcategory) {
+			console.log (option) ; 
+
+			this.selectedOption = option ; 
 			
-			this.loadInventaire () ; 
+			this.loadInventaire (subcategory) ; 
 		}, 
 		displayPage : function (option) {
 			this.selectedOption = option.option ; 
@@ -57,15 +59,22 @@ var main = new Vue ({
 			var vm = this; 
 			return vm.menu.findIndex (function (e) { return e.option == vm.selectedOption; } ) == -1 ; 
 		}, 
-		loadInventaire : function () {
+		loadInventaire : function (subCategory) {
 			var vm = this ; 
+			let sub = subCategory ; 
+			if (typeof subCategory == 'undefined') {
+				sub = '' ; 
+			}
+			console.log (vm.selectedOption) ; 
+			console.log (sub) ; 
+			console.log (JSON.stringify ({category : vm.selectedOption , sub_category : sub})) ; 
 			fetch ('./bin/load-inventaire', 
 							{
 								method : 'POST', 
 								headers : {
 														'Content-Type' : 'application/json'
 													}, 
-								body : JSON.stringify ({category : vm.selectedOption })
+								body : JSON.stringify ({category : vm.selectedOption , sub_category : sub})
 							}
 						)
 						.then (function (response)  { return response.json() ; } ) 

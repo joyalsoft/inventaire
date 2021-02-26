@@ -41,20 +41,20 @@
 						</li>
 						
 						<li v-for="o in menuInventaire">
-							<span v-if="typeof o.subcategories == 'undefined' || o.subcategories.length == 0">
+							<span v-if="!o.submenu">
 								<button class="dropdown-btn" @click="selectOption(o)">
-									{{ o.category }}
+									{{ o.label }}
 								</button>
 							</span>
 							
-							<button v-else class="dropdown-btn" @click="toggleOption(o)" >{{ o.category }}
+							<button v-else class="dropdown-btn" @click="toggleOption(o)" >{{ o.label }}
 								<span class="fa" :class="{ 'fa-caret-down' : o.active , 'fa-caret-right' : !o.active }"></span>
 							</button>
 								<ul v-show="o.active">
-									<li v-for="op in o.subcategories">
+									<li v-for="op in o.options">
 										<span>
-											<button class="dropdown-btn" @click="selectOption(o.category, op)">
-												{{ op }}
+											<button class="dropdown-btn" @click="selectOption(op)">
+												{{ op.label }}
 											</button>
 										</span>
 									</li>
@@ -71,11 +71,7 @@
 			<div class="main-view" id="inventory-view" v-show="showingInventaire()">
 				<div v-for="i in inventaire" class="product">	
 					<img src="./gfx/products/image1.jpg" height="100px" style="padding-left:7px;"><br>
-						{{ i.label }} - <b>{{ i.price  }}$</b>
-						<span v-if="typeof i.description != 'undefined' && i.description.length > 0 ">
-							<br>
-							{{ i.description }}
-						</span>
+						{{ i.label }} - <b>{{ i.price | format(2) }}$</b>
 				</div>
 			</div>
 		</td>

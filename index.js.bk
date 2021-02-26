@@ -1,0 +1,58 @@
+const express = require('express') ; 
+var bodyParser = require('body-parser') ; 
+
+const low = require ('lowdb') ; 
+const FileSync  = require ('lowdb/adapters/FileSync') ; 
+
+const adapter = new FileSync ('./db/main.json') ; 
+const db = low (adapter) ; 
+
+db.defaults(
+	{
+		products : [], 
+		categories : [
+		]
+	}
+).write() ;  
+
+const app = express() ; 
+
+app.use(express.static('www')) ; 
+
+app.use (bodyParser.json()) ; 
+
+app.post ('/bin/load-inventaire', (req, res) => { res.json (loadInventaire(req.body.category)) ; }) ; 
+
+app.post ('/bin/load-products', (req, res) => {res.json (loadProducts()); }) ; 
+
+app.get ('/bin/load-menu', (req, res) => { res.json (loadMenu ()) ; }) ; 
+
+app.post ('/bin/save-products', (req, res) => { res.json (saveProducts (req.body)) ; }) ; 
+
+var port = 3001 ; 
+console.log ('listening on port ' + port)  ; 
+app.listen(port) ; 
+
+
+function loadMenu () {
+	return { menu : db.get ("menu") } ; 
+}
+
+function loadProducts () {
+	return { products : db.get ("products")} ; 
+} 
+
+function loadInventaire (category) {
+	
+	return { inventaire : db.get (category).get ("items") } ; 
+}
+
+function saveProducts (body) {
+
+	db.get ("products")
+  db.remove ("products").remove().value() ; 
+	db.set ("products", body.products).value() ; 
+	db.write() ; 
+
+	return { message : 'ok'} ; 
+}

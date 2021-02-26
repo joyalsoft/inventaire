@@ -1,17 +1,32 @@
 const express = require('express') ; 
 var bodyParser = require('body-parser') ; 
 
-const low = require ('lowdb') ; 
-const FileSync  = require ('lowdb/adapters/FileSync') ; 
+// const low = require ('lowdb') ; 
+//const FileSync  = require ('lowdb/adapters/FileSync') ; 
 
-const adapter = new FileSync ('./db/main.json') ; 
-const db = low (adapter) ; 
-
-/*db.defaults(
+//const adapter = new FileSync ('./db/main.json') ; 
+//const db = low (adapter) ; 
+/*
+db.defaults(
 	{
-		categories : []
+		products : [], 
+		categories : [
+		]
 	}
 ).write() ;  
+*/
+
+const jsonfile = require ('jsonfile') ; 
+const file = 'db/main.json' ; 
+var jdb = jsonfile.readFileSync (file) ; 
+
+/*
+
+jsonfile.writeFile (file, jdb, { spaces: 2, EOL: '\r\n' })
+  .then (res => {
+    console.log ('Write complete')
+  })
+  .catch (error => console.error (error)) ; 
 */
 const app = express() ; 
 
@@ -19,9 +34,13 @@ app.use(express.static('www')) ;
 
 app.use (bodyParser.json()) ; 
 
-app.post ('/bin/load-inventaire', (req, res) => { res.json (loadInventaire(req.body.category)) ; }) ; 
+app.post ('/bin/load-inventaire', (req, res) => { res.json (loadInventaire(req.body)) ; }) ; 
+
+app.post ('/bin/load-products', (req, res) => {res.json (loadProducts()); }) ; 
 
 app.get ('/bin/load-menu', (req, res) => { res.json (loadMenu ()) ; }) ; 
+
+app.post ('/bin/save-products', (req, res) => { res.json (saveProducts (req.body)) ; }) ; 
 
 var port = 3001 ; 
 console.log ('listening on port ' + port)  ; 
@@ -29,74 +48,67 @@ app.listen(port) ;
 
 
 function loadMenu () {
-	return { menu : db.get ("menu") } ; 
+	return { menu : jdb.categories  } ; 
 }
 
-function loadInventaire (category) {
-	
-	return { inventaire : db.get (category).get ("items") } ; 
-	/*
-	var inventory = {
-	}  ; 
-	
-	if (category == 'pieces') {
-		inventory.inventaire = [
-			{ 'product' : 'prod001', 
-				'label' : 'Piece 1', 
-				'price' : 10.50
-			}, 
-			{
-				'product' : 'prod002', 
-				'label' : 'Piece 2', 
-				'price' : 48.99
-			}, 
-			{ 'product' : 'prod005', 
-				'label' : 'Piece 3', 
-				'price' : 10.50
-			}, 
-			{ 'product' : 'prod006', 
-				'label' : 'Piece 4', 
-				'price' : 10.50
-			}, 
-			{ 'product' : 'prod007', 
-				'label' : 'Piece 5', 
-				'price' : 10.50
-			}, 
-			{ 'product' : 'prod008', 
-				'label' : 'Piece 6', 
-				'price' : 10.50
-			}, 
-			{ 'product' : 'prod009', 
-				'label' : 'Piece 7', 
-				'price' : 10.50
-			}, 
-			{ 'product' : 'prod010', 
-				'label' : 'Piece 8', 
-				'price' : 10.50
-			}, 
-			{ 'product' : 'prod011', 
-				'label' : 'Piece 9', 
-				'price' : 10.50
-			}, 
-			{ 'product' : 'prod012', 
-				'label' : 'Piece 10', 
-				'price' : 10.50
-			}, 
-			
-		]; 
-	} else if (category == 'outils' ) {
-		inventory.inventaire = [
-			{ 'product' : 'prod003', 
-				'label' : 'Outils 1', 
-				'price' : 199.95
-			}, 
-			{
-				'product' : 'prod004', 
-				'label' : 'Outils 2', 
-				'price' : 50
-			}
-		]; 
-	}
-	return inventory ; 
-	*/
+function loadProducts () {
+	return { products : jdb.products} ; 
+} 
+
+function loadInventaire (body) {
+  console.log (body) ; 
+  console.log (jdb.products) ; 
+	return { inventaire : jdb.products.filter(e => e.category == body.category && e.sub_category == body.sub_category  ) } ; 
+	//return { inventaire : db.get (category).get ("items") } ; 
+}
+
+function saveProducts (body) {
+  jdb.products = body.products ; 
+  /*
+  db.remove ("products").remove().value() ; 
+	db.set ("products", body.products).value() ; 
+	db.write() ; 
+ */
+	refreshCategoryList (body) ; 
+  console.log ('71') ; 
+  console.log (jdb) ; 
+  writeDbFile() ; 
+
+	return { message : 'ok'} ; 
+}
+
+
+function refreshCategoryList (body) {
+  body.products.forEach (
+    function (e) {
+      let cat = jdb.categories.find (elem => elem.category == e.category) ; 
+      if (typeof cat == 'undefined') {
+        cat = { category : e.category,
+                active : false,  
+                subcategories : []
+              } ; 
+        jdb.categories.push ( cat) ; 
+        console.log (90) ; 
+      }  else {
+        console.log (92) ; 
+      }
+
+      let sub = cat.subcategories.find (elem => elem == e.sub_category) ; 
+      if (typeof sub =='undefined') {
+        cat.subcategories.push (e.sub_category) ; 
+        console.log (98) ; 
+      }
+      console.log (100) ; 
+      console.log (cat) ; 
+    }
+  ) ; 
+
+}
+
+function writeDbFile () {
+    jsonfile.writeFile (file, jdb, { spaces: 2, EOL: '\r\n' })
+    .then (res => {
+      //console.log ('Write complete')
+    })
+    .catch (error => console.error (error)) ; 
 }
