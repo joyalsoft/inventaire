@@ -1,0 +1,80 @@
+body {
+  font-family: "Lato", sans-serif;
+}
+
+/* Fixed sidenav, full height */
+.sidenav {
+  height: 100%;
+  width: 200px;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden ;
+}
+
+/* Style the sidenav links and the dropdown button */
+.sidenav a, .dropdown-btn {
+  font-size: 20px;
+  display: block;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  outline: none;
+}
+
+
+/* Main content */
+.main-view {
+  font-size: 20px; /* Increased text to enable scrolling */
+  padding: 0px 10px;
+}
+
+
+/* Dropdown container (hidden by default). Optional: add a lighter background color and some left padding to change the design of the dropdown content */
+.dropdown-container {
+  display: none;
+  padding-left: 8px;
+}
+
+span.fa {
+  padding-left : 8px;
+}
+
+button.dropdown-btn {
+  font-size : 20px;
+  border :none ; 
+  background : none; 
+  padding : 0px 0px ; 
+}
+li {
+  font-size : 20px; 
+}
+.logo {
+  max-width : 100%; 
+  height : auto; 
+}
+
+
+/* Optional: Style the caret down icon */
+.fa-caret-down {
+  float: right;
+  padding-left: 8px;
+}
+
+/* Some media queries for responsiveness */
+@media screen and (max-height: 450px) {
+  .sidenav {padding-top: 15px;}
+  .sidenav a {font-size: 18px;}
+}
+
+.product {
+		background-color: white;
+    float: left;
+    width: 150px;
+    height: 150px;
+    border-radius: 5px;
+    margin: 10px;
+		font-size:15px;
+		box-shadow : 5px 5px 5px; 
+}
