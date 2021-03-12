@@ -69,8 +69,8 @@
 			</div>
 				
 			<div class="main-view" id="inventory-view" v-show="showingInventaire()">
-				<div v-for="i in inventaire" class="product">	
-					<img src="./gfx/products/image1.jpg" height="100px" style="padding-left:7px;"><br>
+				<div v-for="(i, index) in inventaire" class="product">	
+					<img :src="url(index)" height="100px" style="padding-left:7px;"><br>
 						{{ i.label }} - <b>{{ i.price  }}$</b>
 						<span v-if="typeof i.description != 'undefined' && i.description.length > 0 ">
 							<br>

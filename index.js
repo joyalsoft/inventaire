@@ -1,38 +1,29 @@
 const express = require('express') ; 
-var bodyParser = require('body-parser') ; 
+var formidable = require ('formidable') ; 
+var fs = require ('fs') ; 
 
-// const low = require ('lowdb') ; 
-//const FileSync  = require ('lowdb/adapters/FileSync') ; 
+const low = require ('lowdb') ; 
+const FileSync  = require ('lowdb/adapters/FileSync') ; 
 
-//const adapter = new FileSync ('./db/main.json') ; 
-//const db = low (adapter) ; 
-/*
+const adapter = new FileSync ('./db/main.json') ; 
+const db = low (adapter) ; 
+
 db.defaults(
 	{
 		products : [], 
 		categories : [
-		]
+		], 
+    sequences : {
+      picture_seq : 10001
+    }
 	}
 ).write() ;  
-*/
 
-const jsonfile = require ('jsonfile') ; 
-const file = 'db/main.json' ; 
-var jdb = jsonfile.readFileSync (file) ; 
-
-/*
-
-jsonfile.writeFile (file, jdb, { spaces: 2, EOL: '\r\n' })
-  .then (res => {
-    console.log ('Write complete')
-  })
-  .catch (error => console.error (error)) ; 
-*/
 const app = express() ; 
 
 app.use(express.static('www')) ; 
 
-app.use (bodyParser.json()) ; 
+app.use (express.json()) ; 
 
 app.post ('/bin/load-inventaire', (req, res) => { res.json (loadInventaire(req.body)) ; }) ; 
 
@@ -42,73 +33,108 @@ app.get ('/bin/load-menu', (req, res) => { res.json (loadMenu ()) ; }) ;
 
 app.post ('/bin/save-products', (req, res) => { res.json (saveProducts (req.body)) ; }) ; 
 
+app.post (
+  '/bin/upload-picture', 
+  function (req, res) {
+
+    var form = new formidable.IncomingForm() ; 
+    var fileName = '' ; 
+    form.parse (req, 
+      function (err, fields, files) {
+        var oldpath = files.filetoupload.path ; 
+        fileName = files.filetoupload.name ; 
+        let newFilename = nextSequence('picture_seq'); 
+        let n = fileName.lastIndexOf ('.') ; 
+        if (n != -1) {
+          newFilename += fileName.substring (n) ; 
+        }
+        
+        var newpath = `www/pictures/${newFilename}` ; 
+
+        fs.rename (oldpath, newpath,
+             function (err) {
+               if (err) { 
+                 return res.json (
+                  {
+                    message : 'an error occured' 
+                  }
+                 ) ; 
+                 //throw err ; 
+
+               } else {
+                  return res.json (
+                    {
+                      message : 'file uploaded', 
+                      filename : newFilename
+                    }
+                  ) ; 
+               }
+             }
+             
+          ) ; 
+      }
+    ) ; 
+
+  }
+)
+
 var port = 3001 ; 
 console.log ('listening on port ' + port)  ; 
 app.listen(port) ; 
 
 
 function loadMenu () {
-	return { menu : jdb.categories  } ; 
+  return db.get ('categories').value() ; 
 }
 
 function loadProducts () {
-	return { products : jdb.products} ; 
+  return db.get ('products').value() ; 
 } 
 
 function loadInventaire (body) {
-  console.log (body) ; 
-  console.log (jdb.products) ; 
-	return { inventaire : jdb.products.filter(e => e.category == body.category && e.sub_category == body.sub_category  ) } ; 
-	//return { inventaire : db.get (category).get ("items") } ; 
+  return { inventaire : db.get ('products').filter ({ category : body.category, sub_category : body.sub_category }).value()} ; 
 }
 
 function saveProducts (body) {
-  jdb.products = body.products ; 
-  /*
-  db.remove ("products").remove().value() ; 
-	db.set ("products", body.products).value() ; 
-	db.write() ; 
- */
+  db.set ("products", body.products).write() ; 
+
 	refreshCategoryList (body) ; 
-  console.log ('71') ; 
-  console.log (jdb) ; 
-  writeDbFile() ; 
 
 	return { message : 'ok'} ; 
 }
 
 
 function refreshCategoryList (body) {
+  let categories = [] ; 
   body.products.forEach (
     function (e) {
-      let cat = jdb.categories.find (elem => elem.category == e.category) ; 
+      let cat = categories.find (elem => elem.category == e.category) ; 
       if (typeof cat == 'undefined') {
         cat = { category : e.category,
                 active : false,  
                 subcategories : []
               } ; 
-        jdb.categories.push ( cat) ; 
-        console.log (90) ; 
-      }  else {
-        console.log (92) ; 
+        categories.push ( cat) ; 
       }
 
       let sub = cat.subcategories.find (elem => elem == e.sub_category) ; 
       if (typeof sub =='undefined') {
         cat.subcategories.push (e.sub_category) ; 
-        console.log (98) ; 
       }
-      console.log (100) ; 
-      console.log (cat) ; 
     }
   ) ; 
 
+  db.set ('categories', categories).write() ; 
 }
 
-function writeDbFile () {
-    jsonfile.writeFile (file, jdb, { spaces: 2, EOL: '\r\n' })
-    .then (res => {
-      //console.log ('Write complete')
-    })
-    .catch (error => console.error (error)) ; 
+
+function nextSequence (sequenceName) {
+	var mvalue = db.get ('sequences.' + sequenceName).value()  ; 
+	if (typeof mvalue == 'undefined') {
+		mvalue = 1 ; 
+	} else {
+		mvalue = parseInt (mvalue +1) ; 
+	}
+	db.set ('sequences.' + sequenceName, mvalue).write() ; 
+	return mvalue ; 
 }

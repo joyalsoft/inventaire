@@ -80,6 +80,7 @@ var main = new Vue ({
 						.then (function (response)  { return response.json() ; } ) 
 						.then (
 							function (data) {
+								console.log (data) ; 
 								vm.inventaire = data.inventaire ; 
 							}
 						) ; 
@@ -99,10 +100,19 @@ var main = new Vue ({
 			.then (response => response.json() ) 
 			.then (
 				function (data) {
-					vm.menuInventaire = data.menu ; 
+					vm.menuInventaire = data ; 
 				}
 			) ; 
 
+		}, 
+		url : function (index) {
+			let vm = this; 
+			let picUrl = vm.inventaire[index].picture_url ; 
+			if (typeof picUrl =='undefined' || picUrl == '')	 {
+				return './gfx/products/image1.jpg' ; 
+			} else {
+				return `./pictures/${picUrl}` ; 
+			}
 		}
 	}, 
 	mounted : function () {
