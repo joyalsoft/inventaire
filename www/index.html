@@ -61,8 +61,13 @@
 		
 		<td>
 			<div class="main-view" id="inventory-view">
+        <div v-if="inventaire.length > 0">
+        <span class="fa fa-search"  ></span>
+          <input v-model="search_string" type="text" style="width:200px;">
+          <span class="fa fa-times" v-show="searching" @click="emptySearch"></span>
+        </div>
 				<table style="margin: left 50px;">
-					<tr>
+					<tr >
 						<th v-for="(o,index) in champs" :style="{ textAlign : o.align }" class="liste header" @click="sortList(o)" >
               {{ o.label }}
               <span class="fa" :class="{ 'fa-sort-desc' : o.sorted == -1 , 'fa-sort-asc' : o.sorted == 1 }" style="float:right;">
@@ -70,7 +75,7 @@
 						</th>
 					</tr>
 
-					<tr v-for="i in inventaire">
+					<tr v-for="i in inventaire" v-show="matchFilter(i)">
 						<td v-for="o in champs" :style="{ textAlign : o.align }" class="liste">
 							<span v-if="typeof o.format == 'undefined'">
 								{{ i[o.name]}}

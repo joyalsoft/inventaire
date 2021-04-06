@@ -16,7 +16,9 @@ var main = new Vue ({
 				menu : [], 
 				inventaire : [
 				], 
-				champs : []
+				champs : [], 
+        search_string : '' , 
+        searching : true 
 			} ; 
 	}, 
 	methods : {
@@ -41,7 +43,6 @@ var main = new Vue ({
 						.then (function (response)  { return response.json() ; } ) 
 						.then (
 							function (data) {
-								console.log (data) ; 
 								vm.inventaire = data.inventaire ; 
 
                 data = vm.addMissingFields (data) ; 
@@ -78,7 +79,6 @@ var main = new Vue ({
 			.then (response => response.json() ) 
 			.then (
 				function (data) {
-					console.log (data) ; 
 					vm.menu = data ; 
 				}
 			) ; 
@@ -103,7 +103,51 @@ var main = new Vue ({
       }
       //vm.inventaire.sort (dynamicSort((field.sorted == -1 ? "-" : "") + field.name)) ; 
       vm.inventaire.sort (dynamicSort(`${field.sorted == -1 ? "-" : ""}${field.name}`)) ; 
+    }, 
+    matchFilter : function (item) {
+      
+      let vm = this ; 
+      if (this.search_string == '') {
+        return true; 
+      }
+      return this.findInObject (this.search_string, item) ; 
+    }, 
+    findInObject : function (theString, item) {
+      for (let key in item) {
+        const mValue = item[key] ; 
+        switch (typeof mValue) {
+          case 'object':
+            if (findInObject(theString, mValue)) {
+              return true ; 
+            }
+            break ; 
+          case 'undefined' : 
+            return true ; 
+          case 'number' :
+            if (mValue.toString().toLowerCase().indexOf(theString.toLowerCase()) > -1) {
+              return true; 
+            }
+            break ; 
+          default:
+            if (mValue.toLowerCase().indexOf (theString.toLowerCase()) > -1) {
+              return true ; 
+            }
+            break ; 
+        }
+      }
+      return false ; 
+    }, 
+    emptySearch : function () {
+      this.search_string = '' ; 
     }
+    /*, 
+    openSearch : function () {
+      this.searching = true ; 
+      $('#search_input').focus() ; 
+    }, 
+    closeSearch : function() {
+      this.searching = false ; 
+    }*/
 	}, 
 	mounted : function () {
 		var vm = this ; 
