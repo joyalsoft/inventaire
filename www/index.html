@@ -12,6 +12,21 @@
 		<script src="./scripts/directives.js"></script>
 		<script src="./scripts/jquery/jquery-3.5.1.min.js"></script>
 
+
+		<style type="text/css">
+			.liste {
+				background-color: white;
+				padding : 4px; 
+				border-width: 1px;
+				border-style:outset;
+			}
+
+			.header {
+				background-color :lightgrey; 
+
+			}
+		</style>
+
 <div id="main">
 <table>
 	<col width="20%">
@@ -32,51 +47,42 @@
 			<div class="sidenav" >
 					<ul>
 					
-						<li v-for="o in menu">
+						<li v-for="(o, index) in menu">
 							<span>
-								<button class="dropdown-btn" @click="displayPage(o)">
+								<button class="dropdown-btn" @click="selectOption(index)" :style="{backgroundColor: selectedOption == index ? 'white' : ''}">
 									{{ o.label }} 
 								</button>
 							</span>
 						</li>
 						
-						<li v-for="o in menuInventaire">
-							<span v-if="typeof o.subcategories == 'undefined' || o.subcategories.length == 0">
-								<button class="dropdown-btn" @click="selectOption(o)">
-									{{ o.category }}
-								</button>
-							</span>
-							
-							<button v-else class="dropdown-btn" @click="toggleOption(o)" >{{ o.category }}
-								<span class="fa" :class="{ 'fa-caret-down' : o.active , 'fa-caret-right' : !o.active }"></span>
-							</button>
-								<ul v-show="o.active">
-									<li v-for="op in o.subcategories">
-										<span>
-											<button class="dropdown-btn" @click="selectOption(o.category, op)">
-												{{ op }}
-											</button>
-										</span>
-									</li>
-								</ul>
-						</li>
 					</ul>
 			</div>
 		</td>
 		
 		<td>
-			<div class="main-view" id="main-view" v-show="!showingInventaire()">
-			</div>
-				
-			<div class="main-view" id="inventory-view" v-show="showingInventaire()">
-				<div v-for="(i, index) in inventaire" class="product">	
-					<img :src="url(index)" height="100px" style="padding-left:7px;"><br>
-						{{ i.label }} - <b>{{ i.price  }}$</b>
-						<span v-if="typeof i.description != 'undefined' && i.description.length > 0 ">
-							<br>
-							{{ i.description }}
-						</span>
-				</div>
+			<div class="main-view" id="inventory-view">
+				<table style="margin: left 50px;">
+					<tr>
+						<th v-for="(o,index) in champs" :style="{ textAlign : o.align }" class="liste header" @click="sortList(o)" >
+              {{ o.label }}
+              <span class="fa" :class="{ 'fa-sort-desc' : o.sorted == -1 , 'fa-sort-asc' : o.sorted == 1 }" style="float:right;">
+              </span>
+						</th>
+					</tr>
+
+					<tr v-for="i in inventaire">
+						<td v-for="o in champs" :style="{ textAlign : o.align }" class="liste">
+							<span v-if="typeof o.format == 'undefined'">
+								{{ i[o.name]}}
+							</span>
+							<span v-else>
+								<span v-if="typeof i[o.name] !='undefined' && i[o.name] != ''">
+									{{ i[o.name] | format(o.format)}}$
+								</span>
+							</span>
+						</td>
+					</tr>
+				</table>
 			</div>
 		</td>
 	</tr>
@@ -84,7 +90,9 @@
 
 </div>
 
+  <script src="./scripts/sort.js"></script>
 	<script src="./scripts/menu.js"></script>
+  
 	
 </body>
 

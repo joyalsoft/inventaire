@@ -12,69 +12,30 @@ var main = new Vue ({
 	el : '#main', 
 	data : function () {
 			return {
-				selectedOption : 'accueil', 
-				menu : [
-					{ 
-						label : 'Accueil', 
-						option : 'accueil', 
-						url : 'accueil.html'
-					}, 
-					{ label : 'Services', 
-						option : 'services', 
-						url : 'services.html'
-					}
-				], 
-				menuInventaire : [
-					/*
-					{ 
-						label : 'Produits', 
-						submenu : true, 
-						active : false ,
-						options : [
-							{ label : 'Pieces', option : 'pieces'}, 
-							{ label : 'Outils', option : 'outils'}
-						]
-					}*/
-				 ], 
+				selectedOption : 0, 
+				menu : [], 
 				inventaire : [
-				]
+				], 
+				champs : []
 			} ; 
 	}, 
 	methods : {
 		toggleOption : function (option) {
 			option.active = !option.active ;
 		}, 
-		selectOption : function (option, subcategory) {
-			console.log (option) ; 
-
-			this.selectedOption = option ; 
-			
-			this.loadInventaire (subcategory) ; 
+		selectOption : function (optIndex) {
+			this.selectedOption = optIndex ;
+			this.loadInventaire() ;
 		}, 
-		displayPage : function (option) {
-			this.selectedOption = option.option ; 
-			$('#main-view').load (option.url) ; 
-		}, 
-		showingInventaire : function() {
-			var vm = this; 
-			return vm.menu.findIndex (function (e) { return e.option == vm.selectedOption; } ) == -1 ; 
-		}, 
-		loadInventaire : function (subCategory) {
+		loadInventaire : function () {
 			var vm = this ; 
-			let sub = subCategory ; 
-			if (typeof subCategory == 'undefined') {
-				sub = '' ; 
-			}
-			console.log (vm.selectedOption) ; 
-			console.log (sub) ; 
-			console.log (JSON.stringify ({category : vm.selectedOption , sub_category : sub})) ; 
 			fetch ('./bin/load-inventaire', 
 							{
 								method : 'POST', 
 								headers : {
 														'Content-Type' : 'application/json'
 													}, 
-								body : JSON.stringify ({category : vm.selectedOption , sub_category : sub})
+								body : JSON.stringify ({category : vm.menu[vm.selectedOption].category })
 							}
 						)
 						.then (function (response)  { return response.json() ; } ) 
@@ -82,25 +43,43 @@ var main = new Vue ({
 							function (data) {
 								console.log (data) ; 
 								vm.inventaire = data.inventaire ; 
+
+                data = vm.addMissingFields (data) ; 
+
+								vm.champs = data.champs; 
+
 							}
 						) ; 
 		}, 
+    addMissingFields : function (data) {
+
+      data.champs.forEach ( 
+        function (e) {
+          e.sorted = 0 ; 
+
+          data.inventaire.forEach (
+            function (f) {
+              if (typeof f[e.name] == 'undefined') {
+                f[e.name] = '' ; 
+              }
+            }
+          )
+        }
+      ) ; 
+
+      return data ; 
+
+    },
+
 		loadMenu : function () {
 			var vm = this ; 
 			
 			fetch ('./bin/load-menu')
-				/*{
-					method : 'POST', 
-					headers : {
-											'Content-Type' : 'application/json'
-										}, 
-					body : {} 
-				}
-			)*/
 			.then (response => response.json() ) 
 			.then (
 				function (data) {
-					vm.menuInventaire = data ; 
+					console.log (data) ; 
+					vm.menu = data ; 
 				}
 			) ; 
 
@@ -113,12 +92,22 @@ var main = new Vue ({
 			} else {
 				return `./pictures/${picUrl}` ; 
 			}
-		}
+		}, 
+
+    sortList : function (field) {
+      let vm = this ; 
+      if (typeof field.sorted == 'undefined' || field.sorted == 0  ) {
+        field.sorted = 1 ; 
+      } else {
+        field.sorted *= -1 ; 
+      }
+      //vm.inventaire.sort (dynamicSort((field.sorted == -1 ? "-" : "") + field.name)) ; 
+      vm.inventaire.sort (dynamicSort(`${field.sorted == -1 ? "-" : ""}${field.name}`)) ; 
+    }
 	}, 
 	mounted : function () {
 		var vm = this ; 
 		vm.loadMenu() ; 
-		vm.selectedOption = 'accueil' ; 
-		vm.displayPage (vm.menu.find (function (e) { return  e.option == vm.selectedOption ;} )) ; 
+		vm.selectedOption = -1 ; 
 	}
 }) ; 

@@ -92,7 +92,11 @@ function loadProducts () {
 } 
 
 function loadInventaire (body) {
-  return { inventaire : db.get ('products').filter ({ category : body.category, sub_category : body.sub_category }).value()} ; 
+  // return { inventaire : db.get ('products').filter ({ category : body.category, sub_category : body.sub_category }).value()} ; 
+  console.log (`champs.${body.category}`) ; 
+  return {  inventaire : db.get (body.category).value() , 
+         champs : db.get (`champs.${body.category}`).value()
+  } ; 
 }
 
 function saveProducts (body) {
