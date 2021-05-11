@@ -25,13 +25,21 @@ app.use(express.static('www')) ;
 
 app.use (express.json()) ; 
 
+app.post ('/bin/load-categories', (req, res) => { res.json (loadCategories(req.body)) ; }) ; 
+
 app.post ('/bin/load-inventaire', (req, res) => { res.json (loadInventaire(req.body)) ; }) ; 
 
-app.post ('/bin/load-products', (req, res) => {res.json (loadProducts()); }) ; 
+app.post ('/bin/load-products', (req, res) => {res.json (loadProducts(req.body)); }) ; 
+
+app.post ('/bin/load-champs', (req,res) => { res.json (loadChamps(req.body));}) ;
 
 app.get ('/bin/load-menu', (req, res) => { res.json (loadMenu ()) ; }) ; 
 
 app.post ('/bin/save-products', (req, res) => { res.json (saveProducts (req.body)) ; }) ; 
+
+app.post ('/bin/save-champs', (req, res) => { res.json (saveChamps (req.body)) ; }) ; 
+
+app.post ('/bin/save-categories', (req, res) => { res.json (saveCategories(req.body)) ; }) ; 
 
 app.post (
   '/bin/upload-picture', 
@@ -87,49 +95,42 @@ function loadMenu () {
   return db.get ('categories').value() ; 
 }
 
-function loadProducts () {
-  return db.get ('products').value() ; 
+function loadProducts (body) {
+  return { 'products' : db.get (body.category).value()} ; 
 } 
 
 function loadInventaire (body) {
   // return { inventaire : db.get ('products').filter ({ category : body.category, sub_category : body.sub_category }).value()} ; 
-  console.log (`champs.${body.category}`) ; 
   return {  inventaire : db.get (body.category).value() , 
          champs : db.get (`champs.${body.category}`).value()
   } ; 
 }
 
-function saveProducts (body) {
-  db.set ("products", body.products).write() ; 
+function loadCategories (body) {
+  return { categories : db.get ('categories').value() } ; 
+}
 
-	refreshCategoryList (body) ; 
+
+function loadChamps (body) {
+  return { champs :  db.get ('champs').get (body.category).value()} ; 
+}
+
+function saveChamps (body) {
+  db.get ('champs').set (body.category, body.champs).write() ; 
+  return { message : 'ok'} ; 
+}
+
+function saveProducts (body) {
+  db.set (body.category, body.products).write() ; 
 
 	return { message : 'ok'} ; 
 }
 
-
-function refreshCategoryList (body) {
-  let categories = [] ; 
-  body.products.forEach (
-    function (e) {
-      let cat = categories.find (elem => elem.category == e.category) ; 
-      if (typeof cat == 'undefined') {
-        cat = { category : e.category,
-                active : false,  
-                subcategories : []
-              } ; 
-        categories.push ( cat) ; 
-      }
-
-      let sub = cat.subcategories.find (elem => elem == e.sub_category) ; 
-      if (typeof sub =='undefined') {
-        cat.subcategories.push (e.sub_category) ; 
-      }
-    }
-  ) ; 
-
-  db.set ('categories', categories).write() ; 
+function saveCategories (body) {
+  db.set ("categories", body.categories).write() ; 
+  return { message : 'ok'} ;
 }
+
 
 
 function nextSequence (sequenceName) {

@@ -76,7 +76,7 @@
 					</tr>
 
 					<tr v-for="i in inventaire" v-show="matchFilter(i)">
-						<td v-for="o in champs" :style="{ textAlign : o.align , width : o.width + 'px' }" class="liste">
+						<td v-for="o in champs" :style="{ textAlign : o.align }" class="liste">
 							<span v-if="typeof o.format == 'undefined'">
 								{{ i[o.name]}}
 							</span>
@@ -96,9 +96,7 @@
 </div>
 
   <script src="./scripts/sort.js"></script>
-  <script src="./scripts/format.js"></script>
 	<script src="./scripts/menu.js"></script>
-  
   
 	
 </body>

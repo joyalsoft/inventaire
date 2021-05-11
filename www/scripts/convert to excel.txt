@@ -1,0 +1,3 @@
+convert-excel-to-json --config="{\"sourceFile\": \"pompeagaz.xls\", \"columnToKey\": {\"A\": \"numero\", \"B\": \"modele\", \"C\" : \"location\", \"D\" : \"description1\" , \"E\" : \"prix\", \"F\" : \"description2\", \"G\" : \"date\", \"H\" : \"description3\"}}"
+
+convert-excel-to-json --config="{\"sourceFile\": \"fueltank.xls\", \"columnToKey\": {\"A\": \"numero\", \"B\": \"modele\", \"C\" : \"location\", \"D\" : \"description1\" , \"E\" : \"date\", \"F\" : \"prix\", \"G\" : \"autre\"}}"

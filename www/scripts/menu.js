@@ -1,12 +1,4 @@
-function format (value, decimals) {
-							if (typeof value == 'undefined') {
-								return 0 ; 
-							} else {
-								return value.toFixed(decimals) ; 
-						}
-					}
 					
-Vue.filter ('format', format) ; 
 
 var main = new Vue ({
 	el : '#main', 
@@ -101,7 +93,6 @@ var main = new Vue ({
       } else {
         field.sorted *= -1 ; 
       }
-      //vm.inventaire.sort (dynamicSort((field.sorted == -1 ? "-" : "") + field.name)) ; 
       vm.inventaire.sort (dynamicSort(`${field.sorted == -1 ? "-" : ""}${field.name}`)) ; 
     }, 
     matchFilter : function (item) {
@@ -140,14 +131,6 @@ var main = new Vue ({
     emptySearch : function () {
       this.search_string = '' ; 
     }
-    /*, 
-    openSearch : function () {
-      this.searching = true ; 
-      $('#search_input').focus() ; 
-    }, 
-    closeSearch : function() {
-      this.searching = false ; 
-    }*/
 	}, 
 	mounted : function () {
 		var vm = this ; 
