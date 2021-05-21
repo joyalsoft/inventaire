@@ -1,3 +1,5 @@
+verifyLogin() ; 
+
 var main = new Vue ({
                       el : '#main', 
                       data : function () {
@@ -10,8 +12,10 @@ var main = new Vue ({
                                       {align : 'left', label : 'gauche'}, 
                                       {align :'center', label : 'centre'},
                                       {align : 'right', label : 'droite'}
-                                    ]
-                                    } ; 
+                                    ], 
+                                    search_string : '' ,
+                                    searching : true 
+                                  } ; 
                             }, 
                       methods : {
                         loadChamps : function () {
@@ -147,8 +151,60 @@ var main = new Vue ({
                            if (confirm ('Voulez-vous vraiment effacer cette ligne?')) {
                             vm.products.splice (pIndex, 1) ;
                            }
-                         }
+                         }, 
 
+                         emptySearch : function () {
+                          this.search_string = '' ; 
+                        }, 
+
+                        sortList : function (field) {
+                          let vm = this ; 
+                          if (typeof field.sorted == 'undefined' || field.sorted == 0  ) {
+                            field.sorted = 1 ; 
+                          } else {
+                            field.sorted *= -1 ; 
+                          }
+                          vm.products.sort (dynamicSort(`${field.sorted == -1 ? "-" : ""}${field.name}`)) ; 
+                        }, 
+
+                        matchFilter : function (item) {
+      
+                          let vm = this ; 
+                          if (this.search_string == '') {
+                            return true; 
+                          }
+                          return this.findInObject (this.search_string, item) ; 
+                        }, 
+
+                        
+                        findInObject : function (theString, item) {
+                          for (let key in item) {
+                            const mValue = item[key] ; 
+                            switch (typeof mValue) {
+                              case 'object':
+                                if (findInObject(theString, mValue)) {
+                                  return true ; 
+                                }
+                                break ; 
+                              case 'undefined' : 
+                                return true ; 
+                              case 'number' :
+                                if (mValue.toString().toLowerCase().indexOf(theString.toLowerCase()) > -1) {
+                                  return true; 
+                                }
+                                break ; 
+                              default:
+                                if (mValue.toLowerCase().indexOf (theString.toLowerCase()) > -1) {
+                                  return true ; 
+                                }
+                                break ; 
+                            }
+                          }
+                          return false ; 
+                        }
+                    
+                    
+                                             
                       }, 
 
                       mounted : 

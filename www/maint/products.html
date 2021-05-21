@@ -48,10 +48,11 @@
         
         <i class="fa fa-floppy-o fa-2x" v-show="!saving" @click="saveProducts"></i>
         <i class="fa fa-spinner fa-pulse fa-2x" v-show="saving"></i>
+
 				<table style="margin: left 50px;">
 					<tr > 
             <th class="b">Code</th>
-            <th  v-for="(c, cInd) in champs">
+            <th  v-for="(c, cInd) in champs" @click="sortList(c)" >
               <span v-if="!c.isNew">
                 {{ c.name }}
               </span>
@@ -59,6 +60,10 @@
 
               &nbsp;
               <i class="fa fa-trash-o fa-lg" @click="deleteChamp(cInd)"></i>
+
+              <span class="fa" :class="{ 'fa-sort-desc' : c.sorted == -1 , 'fa-sort-asc' : c.sorted == 1 }" style="float:right;">
+              </span>
+
             </th>
             <th rowspan="5">
               <i class="fa fa-plus fa-3x" @click="addChamp"></i>
@@ -95,7 +100,17 @@
             </th>
           </tr>
 
-          <tr v-for="(p, indP) in products">
+          <tr v-if="products.length > 0">
+            <td>&nbsp;</td>
+            <td :colspan="1 + champs.length" style="text-align: left;">
+            <span class="fa fa-search"  ></span>
+              <input v-model="search_string" type="text" style="width:200px;">
+              <span class="fa fa-times" v-show="searching" @click="emptySearch"></span>
+            </td>
+          </tr>
+  
+
+          <tr v-for="(p, indP) in products" v-show="matchFilter(p)">
             <td style="text-align: center;">
                 <span v-if="indP==0" @click="addProduct">
                   <i class="fa fa-plus"></i>
@@ -129,7 +144,10 @@
     var c = url.searchParams.get("c");
     var category = url.searchParams.get ("category") ; 
   </script>
+  <script src="../scripts/sort.js"></script>
   <script src="../scripts/format.js"></script>
+
+  <script src="./scripts/login.js"></script>
 	<script src="./scripts/products.js"></script>
   
 	
