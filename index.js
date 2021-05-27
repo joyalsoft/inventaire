@@ -14,7 +14,6 @@ const db = low (adapter) ;
 
 db.defaults(
 	{
-		products : [], 
 		categories : [
 		], 
     sequences : {
@@ -41,7 +40,7 @@ app.use (express.json()) ;
 app.use(
     session(
         {
-          secret: 'secret',
+          secret: 'mybigsecret',
           resave: true,
           saveUninitialized: true
         }
@@ -99,6 +98,8 @@ app.post ('/bin/save-categories',
 app.post ('/bin/login', (req, res) => {res.json(login (req)) ; }) ; 
 
 app.post ('/bin/logout' , (req, res) => { res.json (logout(req)) ; }) ; 
+
+app.post ('/bin/check-login', (req, res) => { res.json (checkLogin (req)) ; }) ; 
 
 /*
 maybe use later 
@@ -196,16 +197,13 @@ function saveCategories (body) {
 function login (request) {
   let email = request.body.email ; 
   let password = request.body.password ; 
-
   request.session.loggedin = false ; 
-  request.session.key = '' ; 
+
     if (email && password) {
       let record = dbu.get('users').filter ( {email : email , password : password}).value() ; 
       if (record.length > 0 ) {
         request.session.loggedin = true ; 
-        console.log (request.session.loggedin) ; 
-        
-        return { message :'ok', key : getNewKey (request) } ; 
+        return { message :'ok'} ; 
       } else {
         return { message : 'failed' } ; 
       }
@@ -216,26 +214,15 @@ function login (request) {
 
 function logout (request) {
   request.session.loggedin = false; 
-  request.session.key = '' ; 
   return { message : 'ok'} ; 
 }
 
-function getNewKey (request) {
-	var skey = '' ; 
-	for (var i = 0 ; i < 24 ; i++) {
-		skey += chars [Math.floor (Math.random() * chars.length)] ;  
-	}
-  request.session.key =  skey ; 
-  return skey ; 
+function checkLogin (request) {
+  if (typeof request.session.loggedin == 'undefined') {
+    request.session.loggedin = false; 
+  }
+  return { logged_in : request.session.loggedin } ; 
 }
 
-function nextSequence (sequenceName) {
-	var mvalue = db.get ('sequences.' + sequenceName).value()  ; 
-	if (typeof mvalue == 'undefined') {
-		mvalue = 1 ; 
-	} else {
-		mvalue = parseInt (mvalue +1) ; 
-	}
-	db.set ('sequences.' + sequenceName, mvalue).write() ; 
-	return mvalue ; 
-}
+
+

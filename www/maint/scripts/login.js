@@ -10,7 +10,6 @@ function logout () {
               .then (response => response.json())
             .then (
               function (data) {
-                localStorage.login_key = '' ; 
                 goToLogin() ; 
               }
             ) ; 
@@ -28,8 +27,6 @@ function goToMain() {
 
 function login () {
   
-  localStorage.login_key = '' ; 
-
       fetch ('/bin/login', 
           {
             method : 'POST', 
@@ -44,12 +41,8 @@ function login () {
       function (data) {
         console.log (data) ; 
         if (data.message == 'failed') {
-          localStorage.login_key = '' ; 
           alert ('Courriel ou mot de passe invalide.') ; 
         } else {
-          console.log (data.key) ; 
-          console.log (localStorage.login_key) ; 
-          localStorage.login_key = data.key ; 
           goToMain() ; 
         }
       }
@@ -57,10 +50,23 @@ function login () {
 }
 
 function verifyLogin() {
-  console.log (localStorage.login_key) ; 
-  if (typeof localStorage.login_key == 'undefined' || localStorage.login_key == '') {
-    goToLogin() ; 
-    return false ; 
-  }
-  return true ; 
+  fetch ('/bin/check-login', 
+          {
+            method :'POST', 
+            headers : {
+              'Content-Type' : 'application/json'
+            }
+          }
+      )
+      .then (response => response.json())
+      .then (
+        function (data) {
+          if (!data.logged_in) {
+            goToLogin () ; 
+            return false ;
+          } else {
+            return true ; 
+          }
+        }
+      ) ; 
 }

@@ -97,6 +97,7 @@ var main = new Vue ({
                             .then (response=>response.json())
                             .then (
                               function (data) {
+                                console.log (data) ; 
                                 fetch ('/bin/save-products', 
                                   {
                                     method : 'POST', 
@@ -114,6 +115,7 @@ var main = new Vue ({
                                 .then (response=> response.json())
                                 .then (
                                   function (data) {
+                                    console.log (data) ; 
                                     vm.saving = false; 
                                   }
                                 )

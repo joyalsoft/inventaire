@@ -51,10 +51,6 @@
     <script>
       $(document).ready (
         function () {
-          if (typeof localStorage.login_key != 'undefined' && localStorage.login_key != '') {
-            goToMain() ; 
-          } else {
-
             $('#myform').submit( 
               function (e) {
                 e.stopImmediatePropagation() ; 
@@ -62,7 +58,6 @@
                 login() ; 
               }
             ) ; 
-          }
         }
       ) ; 
 
