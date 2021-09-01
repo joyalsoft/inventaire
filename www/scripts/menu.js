@@ -10,7 +10,8 @@ var main = new Vue ({
 				], 
 				champs : [], 
         search_string : '' , 
-        searching : true 
+        searching : true , 
+        message_accueil : '' 
 			} ; 
 	}, 
 	methods : {
@@ -130,11 +131,31 @@ var main = new Vue ({
     }, 
     emptySearch : function () {
       this.search_string = '' ; 
-    }
+    }, 
+
+    loadMessage : function () {
+      var vm = this; 
+      fetch ('/bin/load-message', 
+             {
+               method : 'GET', 
+               headers : {
+                 'Content-Type' :'application/json'
+               }
+           }
+      )
+      .then (response => response.json())
+      .then ( 
+        function (data) {
+          vm.message_accueil = data.message ; 
+        }
+      )
+   }, 
+
 	}, 
 	mounted : function () {
 		var vm = this ; 
 		vm.loadMenu() ; 
+    vm.loadMessage() ; 
 		vm.selectedOption = -1 ; 
 	}
 }) ; 

@@ -63,6 +63,8 @@ app.post ('/bin/load-champs', (req,res) => { res.json (loadChamps(req.body));}) 
 
 app.get ('/bin/load-menu', (req, res) => { res.json (loadMenu ()) ; }) ; 
 
+app.get ('/bin/load-message' , (req, res) => { res.json (loadMessage()) ; }) ; 
+
 app.post ('/bin/save-products', 
             function (req, res) {
               if (req.session.loggedin) {
@@ -95,59 +97,22 @@ app.post ('/bin/save-categories',
 
         ) ; 
 
+app.post ('/bin/save-message', 
+            function (req, res) {
+              if (req.session.loggedin) {
+                return res.json (saveMessage (req.body)) ; 
+              } else {
+                return res.json (errorNotLoggedIn) ; 
+              }
+            }
+        ) ; 
+
 app.post ('/bin/login', (req, res) => {res.json(login (req)) ; }) ; 
 
 app.post ('/bin/logout' , (req, res) => { res.json (logout(req)) ; }) ; 
 
 app.post ('/bin/check-login', (req, res) => { res.json (checkLogin (req)) ; }) ; 
 
-/*
-maybe use later 
-app.post (
-  '/bin/upload-picture', 
-  function (req, res) {
-
-    var form = new formidable.IncomingForm() ; 
-    var fileName = '' ; 
-    form.parse (req, 
-      function (err, fields, files) {
-        var oldpath = files.filetoupload.path ; 
-        fileName = files.filetoupload.name ; 
-        let newFilename = nextSequence('picture_seq'); 
-        let n = fileName.lastIndexOf ('.') ; 
-        if (n != -1) {
-          newFilename += fileName.substring (n) ; 
-        }
-        
-        var newpath = `www/pictures/${newFilename}` ; 
-
-        fs.rename (oldpath, newpath,
-             function (err) {
-               if (err) { 
-                 return res.json (
-                  {
-                    message : 'an error occured' 
-                  }
-                 ) ; 
-                 //throw err ; 
-
-               } else {
-                  return res.json (
-                    {
-                      message : 'file uploaded', 
-                      filename : newFilename
-                    }
-                  ) ; 
-               }
-             }
-             
-          ) ; 
-      }
-    ) ; 
-
-  }
-)
-*/
 var port = 3001 ; 
 console.log ('listening on port ' + port)  ; 
 app.listen(port) ; 
@@ -172,6 +137,10 @@ function loadCategories (body) {
   return { categories : db.get ('categories').value() } ; 
 }
 
+function loadMessage (body) {
+  return { message : db.get ('message_accueil').value()} ; 
+}
+
 
 function loadChamps (body) {
   return { champs :  db.get ('champs').get (body.category).value()} ; 
@@ -193,6 +162,12 @@ function saveCategories (body) {
   db.set ("categories", body.categories).write() ; 
   return { message : 'ok'} ; 
 }
+
+function saveMessage (body) {
+  db.set ("message_accueil", body.message).write() ; 
+  return { message : 'ok'} ; 
+}
+
 
 function login (request) {
   let email = request.body.email ; 

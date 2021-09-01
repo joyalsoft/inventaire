@@ -3,3 +3,16 @@ convert-excel-to-json --config="{\"sourceFile\": \"pompeagaz.xls\", \"columnToKe
 convert-excel-to-json --config="{\"sourceFile\": \"fueltank.xls\", \"columnToKey\": {\"A\": \"numero\", \"B\": \"modele\", \"C\" : \"location\", \"D\" : \"description1\" , \"E\" : \"date\", \"F\" : \"prix\", \"G\" : \"autre\"}}"
 
 convert-excel-to-json --config="{\"sourceFile\": \"300-moteur.xls\", \"columnToKey\": {\"A\": \"numero\", \"B\": \"location\", \"C\" : \"modele\", \"D\" : \"litre\" , \"E\" : \"stock\", \"F\" : \"prix\", \"G\" : \"condition\", \"H\" : \"description1\", \"I\" : \"description2\", \"J\" : \"verification\", \"K\" : \"description3\"}}"
+
+convert-excel-to-json --config="{\"sourceFile\": \"306-tete.xls\", \"columnToKey\": {\"A\": \"numero\", \"B\": \"location\", \"C\" : \"modele\", \"D\" : \"stock\" , \"E\" : \"litre\", \"F\" : \"condition\"}}"
+
+convert-excel-to-json --config="{\"sourceFile\": \"transmissions.xls\", \"columnToKey\": {\"A\": \"numero\", \"B\": \"location\", \"C\" : \"modele\", \"D\" : \"litre\" , \"E\" : \"stock\", \"F\" : \"prix\", \"G\" : \"autre\", \"H\" : \"autre2\"}}"
+
+convert-excel-to-json --config="{\"sourceFile\": \"clutch.xls\", \"columnToKey\": {\"A\": \"numero\", \"B\": \"location\", \"C\" : \"modele\", \"D\" : \"moteur\" , \"E\" : \"prix\", \"F\" : \"datevue\"}}" >clutch.json
+
+convert-excel-to-json --config="{\"sourceFile\": \"radiateur.xls\",\"columnToKey\": {\"A\": \"numero\", \"B\": \"location\", \"C\": \"type\",  \"D\": \"prix\",  \"E\": \"modele\",  \"F\": \"remarque\",   \"G\": \"autre\",    \"H\": \"date\",    \"I\": \"autre2\"  }}" >radiateur.json
+
+convert-excel-to-json --config="{\"sourceFile\": \"starter.xls\",\"columnToKey\": {\"A\": \"numero\", \"B\": \"type\", \"C\": \"prix\",  \"D\": \"modele\",  \"E\": \"autre\",  \"F\": \"date\",   \"G\": \"emplacement\"}}" >starter.json
+
+convert-excel-to-json --config="{\"sourceFile\": \"ecm.xls\",\"columnToKey\": {\"A\": \"numero\", \"B\": \"modele\", \"C\": \"annee\",  \"D\": \"location\",  \"E\": \"prix\",  \"F\": \"autre\"}}" >ecm.json
+

@@ -1,3 +1,4 @@
+
 verifyLogin() ; 
 
 var main = new Vue ({
@@ -5,7 +6,8 @@ var main = new Vue ({
                       data : function () {
                               return {
                                     categories : []  , 
-                                    need_saving : false 
+                                    need_saving : false , 
+                                    message_accueil : "" 
                                     } ; 
                             }, 
                       methods : {
@@ -28,7 +30,25 @@ var main = new Vue ({
                                             }
                                           ) ; 
                                 } , 
-                          
+
+                          loadMessageAccueil : function () {
+                             var vm = this; 
+                             fetch ('/bin/load-message', 
+                                    {
+                                      method : 'GET', 
+                                      headers : {
+                                        'Content-Type' :'application/json'
+                                      }
+                                  }
+                             )
+                             .then (response => response.json())
+                             .then ( 
+                               function (data) {
+                                 vm.message_accueil = data.message ; 
+                               }
+                             )
+                          }, 
+
                          addLine : function () {
                            let vm = this ; 
                            vm.categories.push (
@@ -72,6 +92,16 @@ var main = new Vue ({
                            .then (response => response.json())
                            .then (vm.protectCategories)
                           ; 
+
+                          fetch( '/bin/save-message', 
+                                {
+                                  method : 'POST' ,
+                                  headers : {
+                                    'Content-Type' : 'application/json'
+                                  }, 
+                                  body : JSON.stringify ({ message : vm.message_accueil})
+                                })
+                             ; 
                          }, 
 
                          dataChanged : function () {
@@ -83,7 +113,7 @@ var main = new Vue ({
                         function () {
                           var vm = this ; 
                           vm.loadCategories() ; 
-  
+                          vm.loadMessageAccueil() ; 
                         }
                     }
                   ) ; 
